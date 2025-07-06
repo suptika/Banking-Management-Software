@@ -26,6 +26,8 @@ public class Login extends JFrame implements ActionListener {
         iimage.setBounds(630,350,100,100);
         add(iimage);
 
+//        demo
+
         label1 = new JLabel("WELCOME TO ATM");
         label1.setForeground(Color.WHITE);
         label1.setFont(new Font("AvantGrade", Font.BOLD, 38));
