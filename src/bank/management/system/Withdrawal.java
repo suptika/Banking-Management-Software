@@ -43,7 +43,7 @@ public class Withdrawal extends JFrame implements ActionListener {
         textField.setFont(new Font("Ralway", Font.BOLD, 22));
         l3.add(textField);
 
-        b1 = new JButton("WITHDRAWAL");
+        b1 = new JButton("WITHDRAW");
         b1.setBounds(700, 362, 150, 35);
         b1.setBackground(new Color(203, 241, 243));
         b1.setForeground(Color.BLACK);
@@ -69,12 +69,29 @@ public class Withdrawal extends JFrame implements ActionListener {
             try {
                 String amount = textField.getText();
                 Date date = new Date();
+
                 if (textField.getText().equals("")) {
                     JOptionPane.showMessageDialog(null, "Please enter the Amount you want to withdraw");
                 } else {
+                    int withdrawalAmount = Integer.parseInt(amount);
+                    if (withdrawalAmount > 10000) {
+                        JOptionPane.showMessageDialog(null,
+                                "Maximum withdrawal limit is Rs. 10,000. Please enter an amount less than or equal to Rs. 10,000",
+                                "Withdrawal Limit Exceeded",
+                                JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    if (withdrawalAmount <= 0) {
+                        JOptionPane.showMessageDialog(null,
+                                "Please enter a valid amount greater than 0",
+                                "Invalid Amount",
+                                JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
                     connection c = new connection();
                     ResultSet resultSet = c.statement.executeQuery("select * from bank where pin = '" + pin + "'");
                     int balance = 0;
+
                     while (resultSet.next()) {
                         if (resultSet.getString("type").equals("Deposit")) {
                             balance += Integer.parseInt(resultSet.getString("amount"));
@@ -82,26 +99,42 @@ public class Withdrawal extends JFrame implements ActionListener {
                             balance -= Integer.parseInt(resultSet.getString("amount"));
                         }
                     }
-                    if (balance < Integer.parseInt(amount)) {
-                        JOptionPane.showMessageDialog(null, "Insufficient Balance");
+                    if (balance < withdrawalAmount) {
+                        JOptionPane.showMessageDialog(null,
+                                "Insufficient Balance. Available balance: Rs. " + balance,
+                                "Insufficient Funds",
+                                JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-
                     c.statement.executeUpdate("insert into bank values('" + pin + "','" + date + "','Withdrawal','" + amount + "')");
-                    JOptionPane.showMessageDialog(null, "Rs. " + amount + " Debited Successfully");
+                    JOptionPane.showMessageDialog(null,
+                            "Rs. " + amount + " Debited Successfully",
+                            "Transaction Successful",
+                            JOptionPane.INFORMATION_MESSAGE);
                     setVisible(false);
                     new main_Class(pin);
                 }
-            } catch (Exception E) {
 
+            } catch (NumberFormatException nfe) {
+                JOptionPane.showMessageDialog(null,
+                        "Please enter a valid numeric amount",
+                        "Invalid Input",
+                        JOptionPane.ERROR_MESSAGE);
+            } catch (Exception E) {
+                JOptionPane.showMessageDialog(null,
+                        "An error occurred during the transaction. Please try again.",
+                        "Transaction Error",
+                        JOptionPane.ERROR_MESSAGE);
+                E.printStackTrace();
             }
+
         } else if (e.getSource() == b2) {
             setVisible(false);
             new main_Class(pin);
         }
     }
 
-        public static void main (String[]args){
+    public static void main (String[]args){
             new Withdrawal("");
         }
     }
